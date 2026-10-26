@@ -96,7 +96,7 @@ class TaskPlanTest {
         assertHasViolations(plan);
     }
 
-     @Test
+    @Test
     void acceptsTitleAtMaximumLength() {
         String title = "A".repeat(120);
         TaskPlan plan = new TaskPlan(
