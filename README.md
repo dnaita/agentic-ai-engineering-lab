@@ -20,16 +20,17 @@ The goal is to learn by implementing small systems, testing their failure modes,
 - Homebrew
 - Python 3.12 or newer
 - Git
-- A terminal and editor
+- Visual Studio Code
 - No model API key is required for Lab 0
 
-## Local setup (macOS + Homebrew)
+## Local setup (macOS + Homebrew + VS Code)
 
-Install Python and Git with Homebrew. Skip this step for tools you already have installed.
+Install Python and Git with Homebrew. If VS Code is not already installed, you can install it with Homebrew too. Skip anything you already have.
 
 ```bash
 brew update
 brew install python@3.13 git
+brew install --cask visual-studio-code
 ```
 
 Clone the repository and switch to the Lab 0 branch:
@@ -40,7 +41,7 @@ cd agentic-ai-engineering-lab
 git switch lab-0-development-baseline
 ```
 
-Create a virtual environment using the Python installed by Homebrew. Using `brew --prefix` makes the path work on both Apple Silicon and Intel Macs:
+Create and activate a virtual environment using the Python installed by Homebrew. Using `brew --prefix` makes the Python path work on both Apple Silicon and Intel Macs:
 
 ```bash
 "$(brew --prefix python@3.13)/bin/python3.13" --version
@@ -50,11 +51,31 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-Homebrew manages system-level tools such as Python and Git. Install this project's Python dependencies with pip **inside the virtual environment**, not into Homebrew's global Python environment.
+Open the project in VS Code:
+
+```bash
+code .
+```
+
+If the `code` command is not available, open VS Code and choose **File → Open Folder...**, then select the repository folder.
+
+### Configure VS Code
+
+1. Install Microsoft's **Python** extension (publisher: Microsoft) from the Extensions panel.
+2. Open the Command Palette with `Cmd+Shift+P`, run **Python: Select Interpreter**, and select the interpreter at `.venv/bin/python` inside this repository.
+3. Open **Terminal → New Terminal**. Activate the virtual environment if it is not active already:
+
+   ```bash
+   source .venv/bin/activate
+   ```
+
+4. Use the integrated terminal for the commands in this README. The project tools are installed in `.venv`, not globally through Homebrew.
+
+Homebrew manages system-level tools such as Python, Git, and VS Code. Install this project's Python dependencies with pip **inside the virtual environment**, not into Homebrew's global Python environment.
 
 ## Run the quality checks
 
-Run these commands from the repository root with `.venv` activated:
+Run these commands from the repository root with `.venv` activated, either in Terminal or the VS Code integrated terminal:
 
 ```bash
 ruff check .
