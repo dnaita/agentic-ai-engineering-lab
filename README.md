@@ -16,28 +16,45 @@ The goal is to learn by implementing small systems, testing their failure modes,
 
 ## Prerequisites
 
+- macOS
+- Homebrew
 - Python 3.12 or newer
 - Git
 - A terminal and editor
 - No model API key is required for Lab 0
 
-## Local setup
+## Local setup (macOS + Homebrew)
 
-Clone the repository:
+Install Python and Git with Homebrew. Skip this step for tools you already have installed.
+
+```bash
+brew update
+brew install python@3.13 git
+```
+
+Clone the repository and switch to the Lab 0 branch:
 
 ```bash
 git clone https://github.com/dnaita/agentic-ai-engineering-lab.git
 cd agentic-ai-engineering-lab
 git switch lab-0-development-baseline
-python3 -m venv .venv
+```
+
+Create a virtual environment using the Python installed by Homebrew. Using `brew --prefix` makes the path work on both Apple Silicon and Intel Macs:
+
+```bash
+"$(brew --prefix python@3.13)/bin/python3.13" --version
+"$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
 
-On Windows PowerShell, activate the environment with `.venv\Scripts\Activate.ps1`.
+Homebrew manages system-level tools such as Python and Git. Install this project's Python dependencies with pip **inside the virtual environment**, not into Homebrew's global Python environment.
 
 ## Run the quality checks
+
+Run these commands from the repository root with `.venv` activated:
 
 ```bash
 ruff check .
