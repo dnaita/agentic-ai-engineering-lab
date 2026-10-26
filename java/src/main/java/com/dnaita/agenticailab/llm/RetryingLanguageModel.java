@@ -48,7 +48,15 @@ public final class RetryingLanguageModel implements LanguageModel {
                     throw failure;
                 }
 
-                delayBeforeRetry.accept(retryPolicy.delayBetweenAttempts());
+                try {
+                    delayBeforeRetry.accept(retryPolicy.delayBetweenAttempts());
+                } catch (RuntimeException delayFailure) {
+                    // Preserve the provider failure and retain the delay failure for diagnosis.
+                    if (delayFailure != failure) {
+                        failure.addSuppressed(delayFailure);
+                    }
+                    throw failure;
+                }
             }
         }
 

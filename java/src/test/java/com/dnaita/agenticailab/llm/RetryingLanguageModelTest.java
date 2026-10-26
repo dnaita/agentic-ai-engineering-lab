@@ -7,12 +7,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RetryingLanguageModelTest {
 
-    private final ModelRequest request =
-            new ModelRequest("", "Explain retries");
+    private final ModelRequest request = new ModelRequest("", "Explain retries");
 
     @Test
     void retriesTransientFailureAndThenSucceeds() {
@@ -113,6 +113,36 @@ class RetryingLanguageModelTest {
                 () -> model.generate(request, Duration.ZERO));
 
         assertEquals(0, calls.get());
+    }
+
+    @Test
+    void preservesProviderFailureWhenRetryDelayFails() {
+        AtomicInteger calls = new AtomicInteger();
+        RuntimeException delayFailure = new IllegalStateException("Retry delay failed");
+
+        LanguageModel unavailableModel = (modelRequest, timeout) -> {
+            calls.incrementAndGet();
+            throw new ModelException(
+                    ModelErrorType.UNAVAILABLE,
+                    "Provider unavailable");
+        };
+
+        RetryingLanguageModel model = new RetryingLanguageModel(
+                unavailableModel,
+                new RetryPolicy(3, Duration.ofMillis(100)),
+                ignored -> {
+                    throw delayFailure;
+                });
+
+        ModelException exception = assertThrows(
+                ModelException.class,
+                () -> model.generate(request, Duration.ofSeconds(2)));
+
+        assertEquals(ModelErrorType.UNAVAILABLE, exception.errorType());
+        assertEquals("Provider unavailable", exception.getMessage());
+        assertEquals(1, calls.get());
+        assertEquals(1, exception.getSuppressed().length);
+        assertSame(delayFailure, exception.getSuppressed()[0]);
     }
 
     private static RetryingLanguageModel createRetryingModel(
