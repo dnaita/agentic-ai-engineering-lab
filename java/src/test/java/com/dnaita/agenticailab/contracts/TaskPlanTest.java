@@ -17,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class TaskPlanTest {
 
-    private static final ValidatorFactory VALIDATOR_FACTORY =
-            Validation.buildDefaultValidatorFactory();
+    private static final ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
     private static final Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
 
     @AfterAll
@@ -31,8 +30,7 @@ class TaskPlanTest {
         TaskPlan plan = new TaskPlan(
                 "  Add API retry handling  ",
                 List.of(" Define retryable errors ", "Implement bounded retries"),
-                null
-        );
+                null);
 
         assertEquals("Add API retry handling", plan.title());
         assertEquals("Define retryable errors", plan.steps().getFirst());
@@ -84,6 +82,16 @@ class TaskPlanTest {
     @Test
     void rejectsBlankRisk() {
         TaskPlan plan = new TaskPlan("Implement retries", List.of("Run tests"), List.of(" "));
+
+        assertHasViolations(plan);
+    }
+
+    @Test
+    void rejectsTwoCharacterTitle() {
+        TaskPlan plan = new TaskPlan(
+                "Go",
+                List.of("Run tests"),
+                List.of());
 
         assertHasViolations(plan);
     }
