@@ -1,144 +1,139 @@
 # Agentic AI Engineering Lab
 
-A hands-on, provider-independent learning lab for building reliable, secure, evaluated agentic AI systems.
+A hands-on, production-minded learning portfolio for agentic AI engineering.
 
-The goal is to learn by implementing small systems, testing their failure modes, comparing frameworks, and gradually building an enterprise-grade Agentic SDLC assistant. The roadmap lives in [docs/learning-roadmap.md](docs/learning-roadmap.md).
+**Primary track: Java 25 + Spring Boot + Spring AI.** Python remains an optional comparison track for reading AI tutorials and exploring Python-first libraries. We will focus on concepts that transfer across languages: tool use, structured data, workflows, memory, RAG, MCP, evaluation, observability, security, and controlled execution.
 
-## Learning principles
+The full curriculum is in [docs/learning-roadmap.md](docs/learning-roadmap.md).
 
-- Build a simple baseline before adopting a framework.
-- Make core tests deterministic and runnable without paid model API access.
-- Keep provider-specific code behind clear interfaces where practical.
+## Engineering principles
+
+- Build a tested baseline before introducing an agent framework.
+- Keep model-provider integrations replaceable where practical.
 - Treat model output and tool results as untrusted input.
-- Measure task quality, latency, cost, and failure rate.
-- Require human approval for consequential actions.
-- Record design decisions and known limitations.
+- Use deterministic tests that work without paid API calls.
+- Measure task quality, latency, cost, retries, and failure rates.
+- Require explicit human approval for consequential operations.
+- Document trade-offs, threats, limitations, and evaluation results.
 
 ## Prerequisites
 
-- macOS
-- Homebrew
-- Python 3.12 or newer
+- macOS with Homebrew
+- Java 25 (this project targets Java 25)
+- Apache Maven
 - Git
 - Visual Studio Code
-- No model API key is required for Lab 0
 
-## Local setup (macOS + Homebrew + VS Code)
+Lab 0 does not require an AI provider key.
 
-Install Python and Git with Homebrew. If VS Code is not already installed, you can install it with Homebrew too. Skip any package you already have installed.
+## 1. Install system tools with Homebrew
+
+Run only the installs you need. Homebrew manages system tools; Maven manages Java project dependencies.
 
 ```bash
 brew update
-# Refresh Homebrew's package definitions before installing or upgrading tools.
+# Refresh Homebrew's package metadata.
 
-brew install python@3.13 git
-# Install Python 3.13 and Git. Skip this if both are already installed and set up.
+brew install openjdk@25 maven
+# Install JDK 25 and Apache Maven. Skip packages already installed.
 
 brew install --cask visual-studio-code
-# Install Visual Studio Code. Skip this if VS Code is already installed.
+# Install VS Code if it is not already installed.
 ```
 
-Clone the repository and switch to the Lab 0 branch:
+Homebrew may not automatically link a versioned JDK into the system Java path. Configure the current terminal to use the Homebrew JDK:
+
+```bash
+export JAVA_HOME="$(brew --prefix openjdk@25)/libexec/openjdk.jdk/Contents/Home"
+# Set JAVA_HOME to the JDK installed by Homebrew.
+
+export PATH="$JAVA_HOME/bin:$PATH"
+# Prefer this JDK's java and javac executables in this terminal.
+
+java -version
+# Confirm the active Java runtime version.
+
+mvn -version
+# Confirm Maven is installed and see which Java runtime Maven uses.
+```
+
+These exports apply only to the current terminal. To make them persistent in the default macOS zsh shell, add both export lines to `~/.zshrc`, then open a new terminal. If you already manage Java versions with another tool, keep your existing setup and ensure `java -version` and `mvn -version` both report Java 25.
+
+## 2. Get the code
+
+### First-time clone
 
 ```bash
 git clone https://github.com/dnaita/agentic-ai-engineering-lab.git
-# Download the repository to a new local folder and configure its Git remote.
+# Download the repository and configure its origin remote.
 
 cd agentic-ai-engineering-lab
-# Move into the repository directory; run the remaining project commands from here.
-
-git switch lab-0-development-baseline
-# Check out the Lab 0 working branch so you do not make these changes directly on main.
+# Enter the repository directory.
 ```
 
-Create and activate a virtual environment using the Python installed by Homebrew. The `brew --prefix` command finds the correct Homebrew installation path on both Apple Silicon and Intel Macs.
+### Existing local clone
 
 ```bash
-"$(brew --prefix python@3.13)/bin/python3.13" --version
-# Confirm that the expected Homebrew-managed Python 3.13 executable is available.
+git fetch origin
+# Download the latest branch and commit references from GitHub.
 
-"$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv
-# Create an isolated Python environment in the repository's .venv folder.
-
-source .venv/bin/activate
-# Activate that environment in this terminal so Python packages install locally to this project.
-
-python -m pip install --upgrade pip
-# Upgrade pip inside the virtual environment, not Homebrew's global Python.
-
-python -m pip install -e ".[dev]"
-# Install this project in editable mode plus development tools (pytest, Ruff, and MyPy).
+git switch --track origin/java-primary-track
+# Create a local branch tracking the Java-track pull request branch.
 ```
 
-Open the project in VS Code:
+If you already have a local `java-primary-track` branch, use `git switch java-primary-track` and then `git pull --ff-only`.
+
+## 3. Open the project in VS Code
 
 ```bash
 code .
 # Open the current repository folder in Visual Studio Code.
 ```
 
-If the `code` command is not available, open VS Code and choose **File → Open Folder...**, then select the repository folder. You can enable the command from VS Code's Command Palette by searching for **Shell Command: Install 'code' command in PATH** if that command is offered by your installation.
+If `code` is unavailable, open VS Code and choose **File → Open Folder...**. To install the command-line launcher, open the Command Palette (`Cmd+Shift+P`) and look for **Shell Command: Install 'code' command in PATH**.
 
-### Configure VS Code
+The repository includes recommended extensions in `.vscode/extensions.json`. When prompted, install the Java extensions. At minimum, use Microsoft's **Extension Pack for Java** for language support, test discovery, debugging, and Maven integration.
 
-1. Install Microsoft's **Python** extension (publisher: Microsoft) from the Extensions panel. It provides Python interpreter selection, test discovery, and debugging support.
-2. Open the Command Palette with `Cmd+Shift+P`, run **Python: Select Interpreter**, and select `.venv/bin/python` inside this repository. This tells VS Code to use the project's isolated environment.
-3. Open **Terminal → New Terminal**. Activate the virtual environment if it is not active already:
+## 4. Build and test the Java project
 
-   ```bash
-   source .venv/bin/activate
-   # Activate the project's virtual environment in the VS Code terminal.
-   ```
-
-4. Run the commands in this README from the VS Code integrated terminal. The project tools live in `.venv`, not in Homebrew's global Python environment.
-
-Homebrew manages system-level tools such as Python, Git, and VS Code. Use pip **inside the virtual environment** for this project's Python dependencies.
-
-## Run the quality checks
-
-Run these commands from the repository root with `.venv` activated, either in Terminal or the VS Code integrated terminal:
+From the repository root:
 
 ```bash
-ruff check .
-# Find lint issues such as common bugs, unused imports, and style violations.
+cd java
+# Enter the Java Maven module; its pom.xml defines the Java dependencies and build.
 
-ruff format --check .
-# Check whether Python files match Ruff's formatter without changing any files.
+mvn -B verify
+# Compile the application, run unit tests, and verify the Maven build.
 
-mypy
-# Run static type checking to catch type inconsistencies before execution.
-
-pytest
-# Run the automated test suite and report any failures.
+mvn spring-boot:run
+# Start the Spring Boot application locally.
 ```
 
-## Configuration and secrets
+Stop the application with `Ctrl+C`. The starter application does not call an AI provider yet.
 
-```bash
-cp .env.example .env
-# Copy the safe placeholder template to a local .env file for future provider labs.
-```
+In VS Code, open the Command Palette (`Cmd+Shift+P`) and select **Java: Configure Java Runtime** if you need to check the JDK used by the Java extension. The project source and CI target Java 25.
 
-Keep actual credentials in local environment variables or a supported secrets manager. Never commit real API keys. The `.env` file is ignored by Git; `.env.example` should contain placeholder values only. Lab 0 does not require or load credentials.
+## 5. Current Java project layout
 
-## Repository map
-
-- `docs/learning-roadmap.md` — milestones, deliverables, and assessment rubric
-- `src/agentic_ai_engineering_lab/` — package source
-- `tests/` — automated tests
-- `.github/workflows/ci.yml` — pull request and push quality checks
-- `.env.example` — placeholder-only environment template
+- `java/pom.xml` — Spring Boot, Java version, and Maven dependencies
+- `java/src/main/java/com/dnaita/agenticailab/` — application code
+- `java/src/main/java/com/dnaita/agenticailab/contracts/TaskPlan.java` — first validated data contract
+- `java/src/test/java/` — unit and validation tests
+- `docs/learning-roadmap.md` — milestones and assessment rubric
+- `.github/workflows/ci.yml` — Java and Python-reference CI checks
+- `pyproject.toml`, `src/`, `tests/` — the original Python baseline, retained as optional reference material
 
 ## Milestones
 
-- [ ] Lab 0: reproducible development baseline and CI
-- [ ] Lab 1: LLM fundamentals and provider adapter
-- [ ] Lab 2: tool-using agent from first principles
-- [ ] Lab 3: retrieval and memory
-- [ ] Lab 4: stateful workflows and framework comparison
-- [ ] Lab 5: MCP tools and integrations
-- [ ] Lab 6: multi-agent coordination benchmark
-- [ ] Lab 7: evaluation, safety, and observability
-- [ ] Lab 8: Agentic SDLC capstone
+- [ ] Lab 0: Java toolchain, Maven build, tests, and CI
+- [ ] Lab 1: structured data contracts and validation
+- [ ] Lab 2: provider interface and mock model
+- [ ] Lab 3: OpenAI and Anthropic model integrations
+- [ ] Lab 4: tool-using agent from first principles
+- [ ] Lab 5: retrieval, embeddings, and memory
+- [ ] Lab 6: Spring AI and framework comparisons
+- [ ] Lab 7: MCP, stateful workflows, and multi-agent coordination
+- [ ] Lab 8: evaluation, security, observability, and human approval
+- [ ] Lab 9: production-minded Agentic SDLC capstone
 
-See the [full learning roadmap](docs/learning-roadmap.md) for exit criteria.
+Python is a supporting skill, not a prerequisite for the primary project. We will use it when a particular tutorial or tool provides a clear learning advantage.

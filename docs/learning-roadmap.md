@@ -1,99 +1,126 @@
-# Agentic AI Engineering Lab — Learning Roadmap
+# Agentic AI Engineering Lab — Java-First Learning Roadmap
 
 ## Goal
 
-Build a production-minded, provider-independent portfolio of agentic AI systems through hands-on implementation, testing, evaluation, and review.
+Build a production-minded, provider-independent portfolio of agentic AI systems using **Java 25, Spring Boot, Maven, and VS Code** as the main implementation environment. Python remains an optional supporting language for comparing Python-first AI libraries and understanding examples from courses.
+
+The final capstone is an Agentic SDLC assistant that analyses requirements, proposes changes, runs checks in a controlled workspace, and requests human approval before consequential operations.
+
+## Technology choices
+
+- **Primary language:** Java 25
+- **Application foundation:** Spring Boot 4.x
+- **AI integration:** Spring AI, introduced after provider-independent fundamentals
+- **Build and dependency management:** Maven
+- **Testing:** JUnit Jupiter, Spring Boot Test, and Jakarta Bean Validation tests
+- **Local IDE and tools:** macOS, Homebrew, Visual Studio Code
+- **CI:** GitHub Actions
+- **Provider options:** OpenAI, Anthropic, and local/open-weight models when practical
+- **Supporting frameworks for comparison:** LangChain4j, framework-independent Java implementations, and selected Python-first tools
+
+Choose currently supported compatible versions when each framework is introduced. Do not add a framework unless a baseline implementation or learning objective gives us a reason to compare it.
 
 ## Engineering principles
 
 - Prefer the simplest architecture that meets the requirement; do not add agents without evidence they help.
-- Keep model-provider integrations behind explicit interfaces where practical.
-- Keep secrets out of source control and use environment variables for credentials.
-- Make behaviour testable with deterministic fakes and mocked model responses.
+- Separate business logic from provider-specific API calls.
+- Use explicit data contracts and validate untrusted model outputs.
+- Keep secrets out of source control.
+- Make core tests deterministic and runnable without paid API access.
 - Track quality, latency, token usage/cost, retries, and failures.
 - Require human approval for consequential or irreversible actions.
 - Document design decisions, threat models, and known limitations.
-- Use small feature branches and reviewable pull requests.
+- Work on small feature branches and use reviewable pull requests.
 
 ## Learning milestones
 
-### 0 — Repository and development baseline
-- Document supported Python version and reproducible setup.
-- Add package/dependency management, formatting, linting, typing, and unit-test configuration.
-- Add CI checks that run without paid API credentials.
-- Add safe environment configuration examples.
+### 0 — Java development baseline
+- Configure JDK 25, Maven, and VS Code on macOS.
+- Understand Maven project structure and the role of `pom.xml`.
+- Build a minimal Spring Boot application.
+- Add GitHub Actions checks for Java build/tests while keeping the original Python baseline as an optional reference check.
 
-**Exit criteria:** a clean checkout can install, run checks, and execute tests using documented commands.
+**Exit criteria:** a clean checkout can run `mvn -B verify` inside `java/` and CI verifies the Java build.
 
-### 1 — LLM application fundamentals
-- Structured outputs and schema validation.
-- Provider interface and configuration.
-- Timeouts, retries, error handling, and token/cost accounting.
-- Tests using deterministic fake providers.
+### 1 — Data contracts and validation
+- Learn Java records, generic collections, annotations, and constructors.
+- Use Jakarta Bean Validation to define input and output constraints.
+- Understand that constraints are enforced when a validator is invoked, not merely because an annotated object exists.
+- Write tests for valid data, missing values, blank text, bounds, and edge cases.
 
-**Deliverable:** a small, tested LLM application that can be evaluated without a live API call.
+**Deliverable:** a tested `TaskPlan` contract with explicit constraints.
 
-### 2 — Tool-using agent from first principles
-- Explicit tool schemas and input validation.
-- Model decision loop, tool execution, and bounded iterations.
-- Tool failure handling and execution records.
-- Allow-listed tools and least privilege.
+### 2 — LLM application fundamentals without a live provider
+- Define a provider-neutral model interface.
+- Use typed request/response contracts.
+- Implement a deterministic fake provider for tests.
+- Add configuration, timeouts, bounded retries, error categories, and execution metadata.
 
-**Deliverable:** a tool-using agent with tests for success, malformed arguments, tool errors, and iteration limits.
+**Deliverable:** a small LLM application core that can be tested without API keys or paid model calls.
 
-### 3 — Retrieval and memory
-- Document ingestion, chunking, retrieval, citations, and retrieval evaluation.
-- Distinguish conversation state from durable memory.
-- Access control and data isolation.
+### 3 — OpenAI and Anthropic integrations
+- Connect to each provider behind the same application interface.
+- Use environment-based secrets and explicit model configuration.
+- Handle structured outputs, timeouts, rate limits, retries, and malformed responses.
+- Compare behaviour, portability, latency, and cost on a common test set.
 
-**Deliverable:** a document Q&A workflow with measurable retrieval quality and source references.
+**Deliverable:** provider adapters and a repeatable comparison report. Live integration tests run only when credentials are configured.
 
-### 4 — Stateful workflows and frameworks
-- Implement a use case directly, then compare a framework implementation.
-- Graph state, conditional routing, persistence, interrupts, and resumability.
-- Evaluate OpenAI Agents SDK, LangGraph, and Google ADK against a common use case rather than assuming one is best.
+### 4 — Tool-using agent from first principles
+- Define tools with explicit input/output schemas.
+- Implement the model decision loop and bounded execution.
+- Validate tool arguments, restrict available operations, and record tool results.
+- Test failures, malformed arguments, loops, timeouts, and iteration limits.
 
-**Deliverable:** documented framework comparison with tests and trade-offs.
+**Deliverable:** a deterministic tool-using agent with negative and edge-case tests.
 
-### 5 — MCP and external tools
-- Build an MCP server and client.
-- Validate tool inputs and outputs.
-- Handle authentication, permissions, failures, and untrusted tool responses.
+### 5 — Retrieval, embeddings, and memory
+- Document ingestion and chunking.
+- Embeddings, retrieval, source attribution, and retrieval quality evaluation.
+- Separate conversation state from durable memory.
+- Enforce data isolation and authorization boundaries.
 
-**Deliverable:** an MCP integration with automated protocol and security tests.
+**Deliverable:** a document research workflow with measurable retrieval quality and source references.
 
-### 6 — Multi-agent coordination
-- Compare a single-agent baseline against delegated or multi-agent workflows.
-- Define clear agent responsibilities and contracts.
-- Handle timeouts, partial results, loops, and conflicting outputs.
+### 6 — Spring AI and Java framework comparisons
+- Reimplement a known use case with Spring AI.
+- Compare a direct provider integration with Spring AI and LangChain4j.
+- Examine structured output, tool calling, chat memory, and observability abstractions.
+- Compare maintainability, testing, portability, and operational complexity.
 
-**Deliverable:** benchmark showing whether multi-agent coordination improves quality, latency, or cost.
+**Deliverable:** a short architecture decision record backed by a working example and tests.
 
-### 7 — Evaluation, safety, and observability
-- Golden datasets, regression tests, task-success metrics, and adversarial cases.
-- Prompt-injection and unsafe-tool-use tests.
-- Traces, structured logs, latency, token usage, and cost reporting.
-- Human approval gates and audit records.
+### 7 — MCP, stateful workflows, and multi-agent coordination
+- Build an MCP client and server integration.
+- Implement stateful workflows, persistence, conditional transitions, and human approval.
+- Compare a single-agent baseline with delegated or multi-agent designs.
+- Handle timeouts, partial results, conflicting responses, and unsafe tool outputs.
 
-**Deliverable:** repeatable evaluation report and documented threat model.
+**Deliverable:** an MCP-enabled workflow with tests and a benchmark showing whether multiple agents add measurable value.
 
-### 8 — Agentic software development capstone
+### 8 — Evaluation, security, and observability
+- Golden test datasets, task-success metrics, regression tests, and adversarial examples.
+- Prompt-injection and unsafe-tool-use testing.
+- Structured logs and traces, latency, token usage, and cost measurement.
+- Least privilege, secrets handling, human approval, and audit records.
+
+**Deliverable:** a repeatable evaluation report and documented threat model.
+
+### 9 — Agentic SDLC capstone
 Build a controlled software-engineering assistant that can:
-1. Analyse requirements and identify ambiguity.
-2. Propose architecture and tasks.
-3. Suggest code changes and tests in a sandbox/branch.
-4. Run tests and static analysis.
-5. Summarize diffs and risks.
-6. Require explicit approval before consequential Git operations.
+1. Analyse a requirement and identify ambiguities.
+2. Propose architecture, acceptance criteria, and implementation tasks.
+3. Suggest code changes in a disposable workspace or feature branch.
+4. Run unit tests and static analysis.
+5. Summarize diffs, risks, and failed checks.
+6. Require explicit approval before consequential Git or deployment actions.
 7. Record traceable executions and evaluation results.
 
-**Deliverable:** documented, tested application with CI, evaluation results, security boundaries, and a demo.
+**Deliverable:** documented application with CI, evaluation results, security boundaries, cost/latency observations, and a reproducible demo.
 
-## Initial tool choices
+## Optional Python track
 
-Start with Python, pytest, Pydantic, a provider adapter, and GitHub Actions. Use mocks for reliable tests and optional live-provider tests guarded by environment variables. Add a framework only when the initial implementation gives us a meaningful baseline.
-
-Potential provider/framework tracks: OpenAI API and Agents SDK, Anthropic API and Claude Agent SDK, LangGraph, Google ADK, and selected local/open-weight models. Revisit current APIs and pricing before implementing provider-specific code.
+Learn only enough Python to read AI tutorials, inspect Python-first frameworks, and reproduce selected experiments. The Python baseline already in the repository is retained as reference material. We will compare a Python implementation with its Java counterpart only where doing so illuminates a framework or ecosystem difference.
 
 ## Assessment rubric
 
@@ -108,7 +135,7 @@ Potential provider/framework tracks: OpenAI API and Agents SDK, Anthropic API an
 ## Working method
 
 For every milestone:
-1. Write acceptance criteria and a short design.
+1. Define the problem, acceptance criteria, and a short design.
 2. Implement on a feature branch.
 3. Add positive, negative, and edge-case tests.
 4. Run local checks and CI.

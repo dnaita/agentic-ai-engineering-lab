@@ -1,0 +1,10 @@
+# Maven output
+java/target/
+
+# IDE files (keep shared VS Code recommendations)
+.idea/
+*.iml
+
+# Java crash logs
+hs_err_pid*
+replay_pid*
