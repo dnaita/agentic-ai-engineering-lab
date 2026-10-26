@@ -96,6 +96,17 @@ class TaskPlanTest {
         assertHasViolations(plan);
     }
 
+     @Test
+    void acceptsTitleAtMaximumLength() {
+        String title = "A".repeat(120);
+        TaskPlan plan = new TaskPlan(
+                title,
+                List.of("Run tests"),
+                List.of());
+
+        assertTrue(VALIDATOR.validate(plan).isEmpty());
+    }
+
     private static void assertHasViolations(TaskPlan plan) {
         Set<ConstraintViolation<TaskPlan>> violations = VALIDATOR.validate(plan);
         assertFalse(violations.isEmpty(), "Expected validation to reject the plan");
