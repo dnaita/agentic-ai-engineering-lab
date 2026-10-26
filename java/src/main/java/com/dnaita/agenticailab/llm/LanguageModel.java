@@ -1,12 +1,20 @@
 package com.dnaita.agenticailab.llm;
 
-/**
- * Common contract for all language model implementations.
- *
- * Provider-specific API details belong in adapter implementations,
- * not in application business logic.
- */
+import java.time.Duration;
+
 public interface LanguageModel {
 
-    ModelResponse generate(ModelRequest request);
+    /**
+     * Runs one model attempt.
+     *
+     * Implementations must apply the timeout at the provider/client layer.
+     */
+    ModelResponse generate(ModelRequest request, Duration timeout);
+
+    /**
+     * Convenience method using a default per-attempt timeout of 30 seconds.
+     */
+    default ModelResponse generate(ModelRequest request) {
+        return generate(request, Duration.ofSeconds(30));
+    }
 }
