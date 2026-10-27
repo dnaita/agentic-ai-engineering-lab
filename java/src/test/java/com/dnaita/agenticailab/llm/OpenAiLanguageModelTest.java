@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,6 +83,7 @@ class OpenAiLanguageModelTest {
             }
             """;
 
+    private final AtomicInteger capturedRequestCount = new AtomicInteger();
     private final AtomicReference<String> capturedPath = new AtomicReference<>();
     private final AtomicReference<String> capturedMethod = new AtomicReference<>();
     private final AtomicReference<String> capturedAuthorization = new AtomicReference<>();
@@ -254,6 +256,7 @@ class OpenAiLanguageModelTest {
     }
 
     private void handleRequest(HttpExchange exchange) throws IOException {
+        capturedRequestCount.incrementAndGet();
         capturedPath.set(exchange.getRequestURI().getPath());
         capturedMethod.set(exchange.getRequestMethod());
         capturedAuthorization.set(
@@ -281,6 +284,6 @@ class OpenAiLanguageModelTest {
     }
 
     private int serverRequestCount() {
-        return capturedPath.get() == null ? 0 : 1;
+        return capturedRequestCount.get();
     }
 }
