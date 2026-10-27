@@ -109,11 +109,39 @@ mvn spring-boot:run
 # Start the Spring Boot application locally.
 ```
 
-Stop the application with `Ctrl+C`. The starter application does not call an AI provider yet.
+Stop the application with `Ctrl+C`. By default, the app does not register an AI provider or make API calls.
 
 In VS Code, open the Command Palette (`Cmd+Shift+P`) and select **Java: Configure Java Runtime** if you need to check the JDK used by the Java extension. The project source and CI target Java 25.
 
-## 5. Current Java project layout
+## 5. Enable the OpenAI adapter in Spring Boot
+
+The OpenAI adapter is registered as a Spring `LanguageModel` bean only when you explicitly select the provider. Without that setting, the application starts without requiring an API key.
+
+Set these variables in your terminal. Use a model ID enabled for your OpenAI account, and never commit your API key to the repository:
+
+```bash
+export AGENTIC_AI_MODEL_PROVIDER=openai
+# Tell Spring Boot to register the OpenAI LanguageModel bean.
+
+export OPENAI_API_KEY="replace-with-your-api-key"
+# Supply the API key through the environment, not source code.
+
+export OPENAI_MODEL="replace-with-your-enabled-model-id"
+# Choose the model your account is allowed to use.
+```
+
+Start the application from the Java module:
+
+```bash
+cd java
+mvn spring-boot:run
+```
+
+This configuration constructs the OpenAI client and model bean but does not send a request on startup. A request is made only when application code calls the injected `LanguageModel`. Do not set `AGENTIC_AI_MODEL_PROVIDER=openai` in environments where the required API key and model ID are unavailable.
+
+The Spring configuration tests use a test API key and verify bean creation and missing-configuration failures; they do not call OpenAI.
+
+## 6. Current Java project layout
 
 - `java/pom.xml` — Spring Boot, Java version, and Maven dependencies
 - `java/src/main/java/com/dnaita/agenticailab/` — application code
